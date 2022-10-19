@@ -25,10 +25,15 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
+    console.log("connection", socket.id)
+    console.log("================================================")
     socket.on('chat message', (res) => {
-        console.log(res)
         io.emit('server response', res)
     })
+
+    socket.on('disconnect', () => {
+      console.log('user disconnected');
+    });
 });
 
 server.listen(3010, () => {
