@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import "../preview.css"
-import { login } from "../services/services";
+import { login, updateUser } from "../services/services";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
@@ -21,7 +21,13 @@ const Login = () => {
     const handleLogin = async () => {
         const res = await login(form)
         if(res?.success) {
-          navigate('/', {replace: true, state: {user: res.user}});
+          const new_form = {
+            ...res.user,
+            isOnline: true
+          }
+          await updateUser(new_form);
+          const ws = 'ws://localhost:3010'
+          navigate('/home', {replace: true, state: {user: res.user, ws: ws}});
         }
     }
 

@@ -25,3 +25,28 @@ export const login = async (form) => {
         return err;
     });
 }
+
+export const get = async () => {
+    return await axios.get(`${url}/users`)
+    .then(res => {
+        return res.data.users
+    })
+    .catch(err => {
+        console.log(err)
+        console.log("Error")
+        return err;
+    });
+}
+
+export const updateUser = async (form) => {
+    await axios.put(`${url}/users/${form._id}`, form)
+    .then(res => {
+        console.log({form,res: res.data})
+        return res.data
+    })
+    .catch(err => {
+        console.log(err)
+        console.log("Error")
+        return err;
+    });
+}

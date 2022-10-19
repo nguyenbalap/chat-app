@@ -15,7 +15,7 @@ export default function App() {
     <Router>
       <div style={{height: "500px", width: "600px"}}>
         <Routes>
-          <Route path="/" element={<Home/>}/>
+          <Route path="/home" element={<Home/>}/>
           <Route path="/login" element={<Login />}/>
           <Route path="/register" element={<Register />}/>
           <Route  path="*" element={<NotFound />}/>
