@@ -3,7 +3,7 @@ import "../preview.css"
 import { login, updateUser } from "../services/services";
 import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+const Login = ({socket}) => {
     const navigate = useNavigate();
     const [form, setForm] = useState({
         email: "",
@@ -23,11 +23,13 @@ const Login = () => {
         if(res?.success) {
           const new_form = {
             ...res.user,
-            isOnline: true
+            isOnline: true,
+            socketId: socket.id
           }
           await updateUser(new_form);
-          const ws = 'ws://localhost:3010'
-          navigate('/home', {replace: true, state: {user: res.user, ws: ws}});
+          socket.emit('login', {isLogin: true});
+          localStorage.setItem('user', JSON.stringify(new_form))
+          navigate('/home', {replace: true});
         }
     }
 
@@ -62,7 +64,7 @@ const Login = () => {
                     </label>
                   </div>
                   <div className="w-50 text-md-right">
-                    <a href="#">Forgot Password</a>
+                    <a href="/register">Register now</a>
                   </div>
                 </div>
                 <div className="form-group">

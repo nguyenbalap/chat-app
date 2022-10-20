@@ -41,7 +41,18 @@ export const get = async () => {
 export const updateUser = async (form) => {
     await axios.put(`${url}/users/${form._id}`, form)
     .then(res => {
-        console.log({form,res: res.data})
+        return res.data
+    })
+    .catch(err => {
+        console.log(err)
+        console.log("Error")
+        return err;
+    });
+}
+
+export const updateIsOnlineUser = async (form) => {
+    await axios.put(`${url}/users/socket/${form.socketId}`, form)
+    .then(res => {
         return res.data
     })
     .catch(err => {

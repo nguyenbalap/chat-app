@@ -1,63 +1,75 @@
 import { useState, useEffect, useRef } from "react";
 import "../App.css"
-import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
-import { io } from "socket.io-client";
-import { get } from "../services/services";
+import { get, updateUser, updateIsOnlineUser } from "../services/services";
 
-function Home() {
-    // const [isConnected, setIsConnected] = useState(socket.connected);
+function Home({ socket }) {
+    const [isConnected, setIsConnected] = useState(true);
     const [message, setMessage] = useState("")
     const [mess, setMess] = useState([]);
+    const userRef = useRef(JSON.parse(localStorage.getItem('user')))
     const location  = useLocation();
     const navigate = useNavigate();
-    const socket = useRef(null);
     const [listUsersOnline, setListUsersOnline] = useState([]);
-    console.log(listUsersOnline);
 
     useEffect(() => {
-      socket.current = io(location?.state?.ws)
-      // socket.current?.on('connect', (e) => {
-      //   console.log(e)
-      // });
-  
-      // socket.on('disconnect', () => {
-      //   setIsConnected(false);
-      // });
 
-      socket.current?.on('server response', (dataGot) => {
+      socket?.on('connect', () => {
+        setIsConnected(true)
+      })
+
+      socket.on('user disconnected', async ({socketId}) => {
+        await updateIsOnlineUser({
+          socketId,
+          isOnline: false
+        })
+        localStorage.removeItem('user');
+      });
+
+      socket?.on('server response', (dataGot) => {
         setMess(oldMsgs => [...oldMsgs, dataGot])
       });
+
+      socket.on('response login', (res) => {
+        console.log("nhay vao day")
+        setIsConnected(!isConnected)
+      })
   
       return () => {
-        // socket.off('connect');
-        // socket.off('disconnect');
-        socket.current?.off('pong');
-        socket.current?.off('server response');
+        socket?.off('connect');
+        socket?.off('server response');
+        socket?.off('user disconnected');
+        // socket?.off('response login');
+
       };
     }, []);
 
     useEffect(() => {
-      if (!location?.state?.user) {
+      console.log(isConnected, "check")
+      if (!userRef.current) {
         navigate("/login")
       } else {
         getListUserOnline()
       }
-    }, [])
+    }, [isConnected])
 
     const getListUserOnline = async () => {
       const list = await get();
       setListUsersOnline(list); 
     }
 
+    function getRandomInt(max) {
+      return Math.floor(Math.random() * max);
+    }
+
     const handleSendMessage = () => {
-      socket.current.emit('chat message', {message: message, user: location?.state.user.name});
+      socket.emit('chat message', {message: message, user: userRef.current.name});
       setMessage("")
     }
     
     return (
         <>
-        <div style={{width: "100%", height: "10%", backgroundColor: "", border: "0.1px solid"}}>
+        <div className="welcome">
             <h4>Welcome</h4>
         </div>
         <div className="container1">
@@ -66,7 +78,12 @@ function Home() {
                 {
                   listUsersOnline.length > 0 && listUsersOnline.map((item,key) => {
                     return (
-                      <p key={key}>{item.name}</p>
+                      <div key={key} className="site_bar_list">
+                        <div style={{width: "30%"}}>
+                          <img src={process.env.PUBLIC_URL + "/images/" + getRandomInt(7) + ".jpeg"} alt="#" className="site_bar_list_avatar"/>
+                        </div>
+                        <div className="site_bar_list_name">{item.name}</div>
+                      </div>
                     )
                   })
                 }
