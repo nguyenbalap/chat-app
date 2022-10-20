@@ -52,8 +52,8 @@ const create = async (req, res) => {};
 const edit = async (req, res) => {};
 
 const update = async (req, res) => {
+    console.log('Updating...');
     const body = req.body;
-    console.log(req.params.id)
     const update = await User.updateOne({
         _id: req.params.id
     }, {
@@ -62,10 +62,22 @@ const update = async (req, res) => {
             email: body.email,
             password: body.password,
             isOnline: body.isOnline,
+            socketId: body.socketId,
         }
     })
     res.send(update);
 };
+
+const updateUserOnline = async (req, res) => {
+    const body = req.body;
+    try {
+        const update = await User.findOneAndUpdate({socketId: body.socketId}, {isOnline: body.isOnline});
+    } catch (error) {
+        res.status(400).json({error: error, success: false});
+    }
+    res.status(200).json({success: true});
+    
+}
 
 const destroy = async (req, res) => {};
 
@@ -74,4 +86,5 @@ module.exports = {
     store,
     update,
     login,
+    updateUserOnline
 }

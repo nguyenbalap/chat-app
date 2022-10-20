@@ -32,8 +32,14 @@ io.on('connection', (socket) => {
     })
 
     socket.on('disconnect', () => {
-      console.log('user disconnected');
+        console.log('user disconnected');
+        io.emit("user disconnected", {socketId: socket.id})
+        io.emit('response login', true)
     });
+
+    socket.on('login', res => {
+      io.emit('response login', res)
+    })
 });
 
 server.listen(3010, () => {

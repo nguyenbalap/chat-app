@@ -16,6 +16,9 @@ const UserSchema = new mongoose.Schema({
     isOnline: {
         type: Boolean,
         require: true
+    },
+    socketId: {
+        type: String,
     }
 })
 
