@@ -28,8 +28,7 @@ io.on('connection', (socket) => {
     console.log("connection", socket.id)
     console.log("================================================")
     socket.on('chat message', (res) => {
-      console.log(res.target)
-        io.emit(`server response ${res.target}`, res)
+        io.emit('server response', res)
     })
 
     socket.on('disconnect', () => {

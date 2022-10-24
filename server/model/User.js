@@ -22,8 +22,4 @@ const UserSchema = new mongoose.Schema({
     }
 })
 
-UserSchema.virtual("nickname").get(function () {
-    return this.name + " " + "(" +this.email + ")";
-})
-
 module.exports = User = mongoose.model("users", UserSchema);
