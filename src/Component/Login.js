@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import "../preview.css"
-import { login, updateUser } from "../services/services";
+import { login } from "../services/services";
 import { useNavigate } from "react-router-dom";
 
 const Login = ({socket}) => {
@@ -26,8 +26,6 @@ const Login = ({socket}) => {
             isOnline: true,
             socketId: socket.id
           }
-          await updateUser(new_form);
-          socket.emit('login', {isLogin: true});
           localStorage.setItem('user', JSON.stringify(new_form))
           navigate('/home', {replace: true});
         }

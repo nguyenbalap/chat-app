@@ -21,7 +21,6 @@ const Register = () => {
 
     const handleRegister = async () => {
         const res = await register(form)
-        console.log(res)
         if(res.success) {
           navigate('/login', {replace: true});
         } else {

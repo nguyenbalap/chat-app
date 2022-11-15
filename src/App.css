@@ -1,6 +1,6 @@
 .container1 {
   width: 100%;
-  height: 90%;
+  height: 100%;
   display: flex;
 }
 
@@ -40,6 +40,8 @@
   display: flex;
   align-items: center;
   height: 10%;
+  border: 1px groove;
+  cursor: pointer;
 }
 
 .site_bar_list_avatar {
@@ -48,4 +50,9 @@
 
 .site_bar_list_name {
 
+}
+
+.active {
+  background-color: gray;
+  color: aliceblue;
 }
