@@ -4,7 +4,10 @@ const http = require('http');
 const server = http.createServer(app);
 const { connectDB } = require('./config/db');
 const { Server } = require("socket.io");
-const MONGO_URL = "mongodb://localhost:27017/chat";
+const dbHost = process.env.DB_HOST || 'localhost'
+const dbPort = process.env.DB_PORT || 27017
+const dbName = process.env.DB_NAME || 'chat'
+const MONGO_URL = `mongodb://${dbHost}:${dbPort}/${dbName}`
 var cors = require('cors');
 app.use(cors());
 
@@ -28,7 +31,7 @@ io.on('connection', (socket) => {
     console.log("connection", socket.id)
     console.log("================================================")
     socket.on('chat message', (res) => {
-        io.emit('server response', res)
+      io.emit(`server response ${res.target}`, res)
     })
 
     socket.on('disconnect', () => {

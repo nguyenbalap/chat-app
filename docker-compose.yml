@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  server:
+    build: ./server
+    container_name: backend
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - PORT=${PORT}
+    ports:
+      - '3010:3010'
+    volumes:
+      - ./server:/app
+      - ./app/node_modules
+    depends_on:
+      - db
+  db:
+    image: mongo:4.4
+    volumes:
+      - .docker/data/db:/data/db
+    restart: unless-stopped
+  client:
+    build: ./client
+    container_name: frontend
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./client:/app
+      - ./app/node_modules
+    stdin_open: true
+    tty: true
+  

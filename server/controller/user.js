@@ -2,7 +2,7 @@ const User = require('../model/User');
 const bcrypt = require('bcrypt');
 
 const index = async (req,res) => {
-    const users = await User.find({isOnline: true});
+    const users = await User.find();
     res.status(200).send({users: users, success: true});
 }
 
