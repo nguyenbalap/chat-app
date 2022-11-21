@@ -2,7 +2,9 @@ const User = require('../model/User');
 const bcrypt = require('bcrypt');
 
 const index = async (req,res) => {
-    const users = await User.find();
+    const __id = req.params.id;
+    // const users = await User.find({_id: {$ne: __id}, isOnline: true});
+    const users = await User.find({isOnline: true});
     res.status(200).send({users: users, success: true});
 }
 
@@ -69,9 +71,11 @@ const update = async (req, res) => {
 };
 
 const updateUserOnline = async (req, res) => {
-    const body = req.body;
+    const { id } = req.params;
+    const { isOnline } = req.body;
+
     try {
-        const update = await User.findOneAndUpdate({socketId: body.socketId}, {isOnline: body.isOnline});
+        const update = await User.findOneAndUpdate({_id: id}, {isOnline: isOnline});
     } catch (error) {
         res.status(400).json({error: error, success: false});
     }
