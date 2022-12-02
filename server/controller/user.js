@@ -12,41 +12,72 @@ const show = async (req, res) => {};
 
 const store = async (req, res, next) => {
     const body = req.body;
-    const user = await User.find({$or: [{'email': body.email}, {'name': body.name}]});
-    if (user.length === 0) {
-        const new_user = new User(body);
-        const saltRounds = 10;
-        const salt = await bcrypt.genSalt(saltRounds);
-        new_user.password = await bcrypt.hash(new_user.password, salt);
-    
-        new_user.save()
+    try {
+        if (!body.email || !body.email.trim().length) {
+            return res.status(422).json({
+                message: "Email is required"
+            })
+        }
+        if (!body.name || !body.name.trim().length) {
+            return res.status(422).json({
+                message: "Name is required"
+            })
+        }
+        if (!body.password || !body.password.trim().length) {
+            return res.status(422).json({
+                message: "Password is required"
+            })
+        }
+        const user = new User(body);
+        user.save()
             .then((doc) => {
                 res.status(201).json({
                     success: true,
                     data: doc,
+                    message: "User saved successfully"
                 });
             })
             .catch((err) => {
-                res.status(400).json({ error: err, success: false });
+                res.status(500).json({ error: err, success: false });
             });
-    } else {
-        res.status(400).json({success: false, message: "Email or user name is already exists" });
     }
+    catch (err) {
+        res.status(500).json({ error: err, success: false });
+    }
+        
 };
 
 const login = async (req, res) => {
     const body = req.body;
-    const user = await User.findOne({ email: body.email });
-    if (user) {
-        const validPassword = await bcrypt.compare(body.password, user.password)
-        if (validPassword) {
-            res.status(200).json({mess: 'Valid Password', success: true, user: user});
-        } else {
-            res.status(400).json({mess: 'Invalid Password'});
-        }
-    } else {
-        res.status(401).json({ error: "User does not exist" });
+
+    if (!body.email || !body.email.length) {
+        return res.status(422).send({
+          message: 'email is required and must not be empty'
+        })
     }
+  
+    if (!body.password || !body.password.length) {
+        return res.status(422).send({
+            message: 'Password is required and must not be empty'
+        })
+    }
+    try {
+        const user = await User.findOne({ email: body.email }).select('+password');
+        if (user) {
+            const validPassword = await bcrypt.compare(body.password, user.password)
+            if (validPassword) {
+                res.status(200).json({message: 'Valid Password', success: true, user: user});
+            } else {
+                res.status(404).json({message: 'Invalid Password'});
+            }
+        } else {
+            res.status(404).json({ error: "User does not exist" });
+        }
+    }
+    catch (err) {
+        res.status(500).json({ error: err, success: false });
+    }
+    
 };
 
 const create = async (req, res) => {};

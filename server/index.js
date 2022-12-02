@@ -1,20 +1,22 @@
 const express = require('express');
-const app = express();
-const http = require('http');
 
 const morgan = require('morgan')
 var session = require('express-session');
 var cookieParser = require('cookie-parser');
 const flash = require('connect-flash');
+var cors = require('cors');
 
-const server = http.createServer(app);
 const { connectDB } = require('./config/db');
-const { Server } = require("socket.io");
 const dbHost = process.env.DB_HOST || 'localhost'
 const dbPort = process.env.DB_PORT || 27017
-const dbName = process.env.DB_NAME || 'chat'
+const dbName = process.env.JEST_WORKER_ID === undefined 
+  ? process.env.DB_NAME || 'chat' 
+  : 'chat_test'
 const MONGO_URL = `mongodb://${dbHost}:${dbPort}/${dbName}`
-var cors = require('cors');
+
+connectDB(MONGO_URL);
+
+const app = express();
 app.use(cors());
 
 // enable body parser
@@ -47,43 +49,15 @@ app.all('/test', function(req, res){
   // res.send(JSON.stringify(req.flash('test')));
 });
 
-connectDB(MONGO_URL);
+app.get('/user_test', function(req, res) {
+  res.status(200).json({ name: 'john' });
+});
+
+
 const users = require('./router/api/user');
 const messages = require('./router/api/message')
 
 app.use("/api/v1/users", users)
 app.use("/api/v1/messages", messages)
 
-
-const io = new Server(server, {
-  cors: {
-      origin: "*"
-  }
-});
-
-io.on('connection', (socket) => {
-    console.log("connection", socket.id)
-    console.log("================================================")
-    socket.on('chat message', (res) => {
-      io.emit(`server response ${res.receiver}`, res)
-      io.emit(`server response ${res.sender}`, res)
-    })
-
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-        io.emit("user disconnected")
-        io.emit('response login', true)
-    });
-
-    socket.on('login', () => {
-      io.emit('response login')
-    });
-
-    socket.on('logout', () => {
-      io.emit('response logout')
-    });
-});
-
-server.listen(3010, () => {
-  console.log('listening on *:3010');
-});
+module.exports = app
